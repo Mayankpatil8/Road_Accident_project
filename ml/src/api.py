@@ -97,44 +97,36 @@ FULL_FEATURE_ORDER = [
 
 
 def load_models():
-    """Load all trained models into memory."""
+    """Load lightweight deployment models into memory."""
     global models
+
     print("🔄 Loading models...")
 
     try:
-        models["rf"] = joblib.load(os.path.join(MODEL_DIR, "random_forest_model.pkl"))
-        print("   ✅ Random Forest loaded")
+        models["xgb"] = joblib.load(
+            os.path.join(MODEL_DIR, "xgboost_model.pkl")
+        )
+        print("✅ XGBoost loaded")
     except FileNotFoundError:
-        print("   ❌ random_forest_model.pkl not found — run python src/train.py first")
-        models["rf"] = None
-
-    try:
-        models["xgb"] = joblib.load(os.path.join(MODEL_DIR, "xgboost_model.pkl"))
-        print("   ✅ XGBoost loaded")
-    except FileNotFoundError:
+        print("❌ xgboost_model.pkl not found")
         models["xgb"] = None
 
     try:
-        models["scaler"] = joblib.load(os.path.join(MODEL_DIR, "scaler.pkl"))
-        models["feature_names"] = joblib.load(os.path.join(MODEL_DIR, "feature_names.pkl"))
-        print("   ✅ Scaler & feature names loaded")
+        models["scaler"] = joblib.load(
+            os.path.join(MODEL_DIR, "scaler.pkl")
+        )
+
+        models["feature_names"] = joblib.load(
+            os.path.join(MODEL_DIR, "feature_names.pkl")
+        )
+
+        print("✅ Scaler & feature names loaded")
+
     except FileNotFoundError:
+        print("❌ scaler or feature_names not found")
         models["scaler"] = None
 
-    try:
-        import tensorflow as tf
-        tf.get_logger().setLevel("ERROR")
-        nn_path = os.path.join(MODEL_DIR, "neural_network_model.keras")
-        if os.path.exists(nn_path):
-            models["nn"] = tf.keras.models.load_model(nn_path)
-            print("   ✅ Neural Network loaded")
-        else:
-            models["nn"] = None
-    except Exception:
-        models["nn"] = None
-
     print("✅ Models ready!")
-
 
 @app.on_event("startup")
 def startup():
@@ -237,50 +229,34 @@ def get_safety_suggestion(data: AccidentInput) -> str:
 
 
 def ensemble_predict(X_scaled: np.ndarray):
-    """Run all available models and combine via soft voting."""
-    proba_list = []
-    weights    = []
 
-    if models.get("rf"):
-        proba_list.append(models.get("rf").predict_proba(X_scaled))
-        weights.append(0.40)
+    if not models.get("xgb"):
+        raise HTTPException(
+            status_code=503,
+            detail="XGBoost model not loaded."
+        )
 
-    if models.get("xgb"):
-        proba_list.append(models.get("xgb").predict_proba(X_scaled))
-        weights.append(0.40)
+    probabilities = models["xgb"].predict_proba(X_scaled)
 
-    # Wrap TF predict if neural network exists
-    if models.get("nn"):
-        proba_list.append(models.get("nn").predict(X_scaled, verbose=0))
-        weights.append(0.20)
+    predicted_label = np.argmax(probabilities, axis=1)[0] + 1
+    confidence = float(np.max(probabilities[0]))
 
-    if not proba_list:
-        raise HTTPException(status_code=503, detail="No models loaded. Run python src/train.py first.")
-
-    total_weight = sum(weights)
-    weights = [w / total_weight for w in weights]
-    avg_proba = sum(p * w for p, w in zip(proba_list, weights))
-
-    predicted_label = np.argmax(avg_proba, axis=1)[0] + 1  # back to 1,2,3
-    confidence = float(np.max(avg_proba[0]))
-
-    return predicted_label, confidence, avg_proba[0].tolist()
+    return predicted_label, confidence, probabilities[0].tolist()
 
 
 # ── Endpoints ──────────────────────────────────────────────────────
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-
 @app.post("/predict")
 def predict(data: AccidentInput):
-    if models.get("scaler") is None or models.get("rf") is None:
+
+    if models.get("scaler") is None or models.get("xgb") is None:
         raise HTTPException(
             status_code=503,
             detail="Models not loaded. Run 'python src/train.py'."
         )
-
+    
     try:
         X = build_feature_vector(data)
         X_scaled = models.get("scaler").transform(X)
@@ -316,11 +292,17 @@ def predict(data: AccidentInput):
         "safety_suggestion": get_safety_suggestion(data),
         "top_risk_factors": risks[:4] if risks else ["Normal Parameters"],
     }
-
 @app.post("/live_scan")
 def live_scan(req: LiveScanRequest):
-    if models.get("scaler") is None or models.get("rf") is None:
-        raise HTTPException(status_code=503, detail="Models not loaded.")
+
+    if models.get("scaler") is None or models.get("xgb") is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Models not loaded."
+        )
+
+    now = datetime.now()
+            raise HTTPException(status_code=503, detail="Models not loaded.")
 
     now = datetime.now()
     hour = now.hour
