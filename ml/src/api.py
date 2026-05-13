@@ -25,6 +25,10 @@ app = FastAPI(
     version="2.0.0",
 )
 
+@app.get("/")
+def home():
+    return {"message": "ML API Running"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

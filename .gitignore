@@ -97,15 +97,11 @@ client/dist/
 # =========================
 server/*.log
 
-# ML models
-ml/models/
 
 # Raw datasets
 ml/data/raw/
 
 # Large ML files
-*.pkl
-*.joblib
 *.csv
 
 # Tensorflow cache
@@ -120,3 +116,13 @@ tensorflow/
 # exe/output files
 *.exe
 bfs
+
+# Ignore only huge models
+ml/models/ensemble_model.pkl
+ml/models/random_forest_model.pkl
+
+# Ignore datasets
+ml/data/raw/
+
+# Ignore large generated files
+*.csv
