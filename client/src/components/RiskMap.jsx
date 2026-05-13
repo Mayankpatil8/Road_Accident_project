@@ -191,53 +191,53 @@ export default function RiskMap() {
       const ctx = new AudioContext();
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
-      
+
       osc.type = 'sine';
       osc.frequency.setValueAtTime(800, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
-      
+
       gainNode.gain.setValueAtTime(0, ctx.currentTime);
       gainNode.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.05);
       gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
-      
+
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
-      
+
       osc.start();
       osc.stop(ctx.currentTime + 0.3);
-    } catch(e) { console.warn("Audio error", e) }
+    } catch (e) { console.warn("Audio error", e) }
   };
 
   const handleSelectSearchResult = (result) => {
     const lat = parseFloat(result.lat);
     const lon = parseFloat(result.lon);
-    
+
     setSearchResults([]);
     setSearchQuery('');
-    
+
     // Trigger "Satellite Scanning" UI sequence
     setIsScanning(true);
     setScanProgress(0);
-    
+
     let progress = 0;
     const interval = setInterval(async () => {
       progress += 20;
       setScanProgress(progress);
       if (progress >= 100) {
         clearInterval(interval);
-        
+
         try {
-          const res = await axios.post('http://localhost:5000/api/predict/live', {
+          const res = await axios.post('import.meta.env.VITE_API_URL/api/predict/live', {
             lat: lat,
             lng: lon,
             name: result.display_name.split(',')[0]
           });
-          
+
           if (res.data.success) {
             const data = res.data;
             const liveSpot = {
               id: `live-${result.place_id}`,
-              name: result.display_name.split(',')[0], 
+              name: result.display_name.split(',')[0],
               lat: lat,
               lng: lon,
               severity: data.mapData.severity,
@@ -264,7 +264,7 @@ export default function RiskMap() {
   const handleSpotClick = (spot, fromSearch = false) => {
     const map = mapInstanceRef.current;
     if (!map) return;
-    
+
     if (fromSearch) {
       if (searchMarkerRef.current) map.removeLayer(searchMarkerRef.current);
       searchMarkerRef.current = L.marker([spot.lat, spot.lng], { icon: RedSearchIcon }).addTo(map);
@@ -288,8 +288,8 @@ export default function RiskMap() {
     setIsSatellite(false);
     setIsSearchMode(false);
     if (searchMarkerRef.current && map) {
-        map.removeLayer(searchMarkerRef.current);
-        searchMarkerRef.current = null;
+      map.removeLayer(searchMarkerRef.current);
+      searchMarkerRef.current = null;
     }
   };
 
@@ -298,9 +298,9 @@ export default function RiskMap() {
   return (
     <>
       <div style={{ position: 'relative', height: '500px', width: '100%', borderRadius: 'var(--radius-xl)', overflow: 'hidden', border: '1px solid var(--glass-border)', boxShadow: 'var(--shadow-xl)' }} className="fade-in">
-      
-      {/* Universal Search Bar Overlay */}
-      <style>{`
+
+        {/* Universal Search Bar Overlay */}
+        <style>{`
         /* ── Glass Controls ─────────────────────────── */
         .map-controls {
           position: absolute; top: 20px; left: 20px; z-index: 1000;
@@ -345,169 +345,169 @@ export default function RiskMap() {
         .leaflet-popup-content-wrapper { background: var(--bg-darker); color: white; border: 1px solid var(--glass-border); }
         .leaflet-popup-tip { background: var(--bg-darker); }
       `}</style>
-      <div style={{
-          position: 'absolute', top: '24px', left: '24px', zIndex: 1000, 
-          width: '380px'
-      }}>
-        <form onSubmit={handleSearch} style={{ display: 'flex', width: '100%', background: 'var(--glass-panel)', backdropFilter: 'blur(10px)', border: '1px solid var(--neon-cyan)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-neon)' }}>
-          <div style={{ paddingLeft: '16px', display: 'flex', alignItems: 'center', color: 'var(--neon-cyan)' }}>
-            <Search size={20} />
-          </div>
-          <input 
-            type="text" 
-            placeholder="Search Pune Area (e.g., Baner, Katraj)..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ flex: 1, padding: '16px 14px', background: 'transparent', border: 'none', outline: 'none', fontSize: '15px', color: 'white' }}
-          />
-          <button type="submit" disabled={isSearching} style={{ background: 'var(--gradient-cyan)', color: 'white', border: 'none', padding: '0 24px', cursor: 'pointer', fontWeight: '700' }}>
-            {isSearching ? '...' : 'SCAN'}
-          </button>
-        </form>
-
-        {/* Search Results Dropdown */}
-        {searchResults.length > 0 && (
-          <div style={{ marginTop: '8px', background: 'white', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-xl)', maxHeight: '250px', overflowY: 'auto' }}>
-            {searchResults.map((result) => (
-              <div 
-                key={result.place_id} 
-                onClick={() => handleSelectSearchResult(result)}
-                style={{ padding: '14px 18px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', fontSize: '14px', color: '#334155', display: 'flex', alignItems: 'flex-start', gap: '10px' }}
-                className="search-item-hover"
-              >
-                <MapPin size={18} color="var(--primary-color)" style={{flexShrink: 0, marginTop: '2px'}} />
-                <span>{result.display_name}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Satellite Scanning Animation Overlay */}
-      {isScanning && (
         <div style={{
+          position: 'absolute', top: '24px', left: '24px', zIndex: 1000,
+          width: '380px'
+        }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', width: '100%', background: 'var(--glass-panel)', backdropFilter: 'blur(10px)', border: '1px solid var(--neon-cyan)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-neon)' }}>
+            <div style={{ paddingLeft: '16px', display: 'flex', alignItems: 'center', color: 'var(--neon-cyan)' }}>
+              <Search size={20} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search Pune Area (e.g., Baner, Katraj)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ flex: 1, padding: '16px 14px', background: 'transparent', border: 'none', outline: 'none', fontSize: '15px', color: 'white' }}
+            />
+            <button type="submit" disabled={isSearching} style={{ background: 'var(--gradient-cyan)', color: 'white', border: 'none', padding: '0 24px', cursor: 'pointer', fontWeight: '700' }}>
+              {isSearching ? '...' : 'SCAN'}
+            </button>
+          </form>
+
+          {/* Search Results Dropdown */}
+          {searchResults.length > 0 && (
+            <div style={{ marginTop: '8px', background: 'white', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-xl)', maxHeight: '250px', overflowY: 'auto' }}>
+              {searchResults.map((result) => (
+                <div
+                  key={result.place_id}
+                  onClick={() => handleSelectSearchResult(result)}
+                  style={{ padding: '14px 18px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', fontSize: '14px', color: '#334155', display: 'flex', alignItems: 'flex-start', gap: '10px' }}
+                  className="search-item-hover"
+                >
+                  <MapPin size={18} color="var(--primary-color)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <span>{result.display_name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Satellite Scanning Animation Overlay */}
+        {isScanning && (
+          <div style={{
             position: 'absolute', inset: 0, zIndex: 1100,
             background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             color: 'white'
-        }}>
+          }}>
             <div style={{ position: 'relative', width: '200px', height: '200px', marginBottom: '20px' }}>
-                <div style={{ 
-                    position: 'absolute', inset: 0, borderRadius: '50%',
-                    border: '2px solid var(--primary-color)', animation: 'ping 1.5s infinite opacity'
-                }}></div>
-                <div style={{ 
-                    position: 'absolute', inset: '10px', borderRadius: '50%',
-                    border: '4px solid var(--accent-color)', borderTopColor: 'transparent',
-                    animation: 'spin 1s linear infinite'
-                }}></div>
-                <div style={{ 
-                    position: 'absolute', inset: 0, 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '24px', fontWeight: '900', color: 'var(--primary-color)' 
-                }}>{scanProgress}%</div>
+              <div style={{
+                position: 'absolute', inset: 0, borderRadius: '50%',
+                border: '2px solid var(--primary-color)', animation: 'ping 1.5s infinite opacity'
+              }}></div>
+              <div style={{
+                position: 'absolute', inset: '10px', borderRadius: '50%',
+                border: '4px solid var(--accent-color)', borderTopColor: 'transparent',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              <div style={{
+                position: 'absolute', inset: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '24px', fontWeight: '900', color: 'var(--primary-color)'
+              }}>{scanProgress}%</div>
             </div>
             <h3 style={{ color: 'white', letterSpacing: '4px' }}>SATELLITE SCANNING AREA...</h3>
             <p style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '8px' }}>PUNE TRAFFIC AI GRID v4.2</p>
-        </div>
-      )}
-
-      {/* Mode Toggle Overlay */}
-      <div style={{ 
-        position: 'absolute', top: '24px', right: '24px', zIndex: 1000, 
-        background: 'white', padding: '6px', borderRadius: '100px', boxShadow: 'var(--shadow-lg)',
-        display: 'flex', gap: '4px'
-      }}>
-        <button 
-          onClick={() => setIsSatellite(false)}
-          style={{
-            background: !isSatellite ? 'var(--primary-color)' : 'transparent',
-            color: !isSatellite ? 'white' : 'var(--text-muted)',
-            border: 'none', padding: '8px 16px', borderRadius: '100px', cursor: 'pointer',
-            fontSize: '12px', fontWeight: '700', transition: 'var(--transition)'
-          }}
-        >MAP</button>
-        <button 
-          onClick={() => setIsSatellite(true)}
-          style={{
-            background: isSatellite ? 'var(--primary-color)' : 'transparent',
-            color: isSatellite ? 'white' : 'var(--text-muted)',
-            border: 'none', padding: '8px 16px', borderRadius: '100px', cursor: 'pointer',
-            fontSize: '12px', fontWeight: '700', transition: 'var(--transition)'
-          }}
-        >SATELLITE</button>
-      </div>
-
-      {/* Map Rendering Container */}
-      <div 
-        ref={mapContainerRef} 
-        style={{ height: '100%', width: '100%', zIndex: 0 }}
-      />
-    </div>
-
-    {/* Advanced Professional Overlay for Data BELOW MAP */}
-    {selectedSpot && (
-      <div className="fade-in" style={{
-        marginTop: '24px',
-        background: 'var(--glass-panel)', backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)',
-        border: '1px solid var(--neon-cyan)', borderRadius: 'var(--radius-xl)',
-        width: '100%', padding: '24px', color: 'white',
-        boxShadow: 'var(--shadow-neon-lg)'
-      }}>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-          <div>
-              <div style={{ fontSize: '11px', color: 'var(--neon-cyan)', fontWeight: '800', letterSpacing: '2px', marginBottom: '4px' }}>LIVE STATION CONTEXT</div>
-              <h3 style={{ margin: 0, fontSize: '20px', color: 'white' }}>{selectedSpot.name}</h3>
           </div>
-          {isSearchMode && <span style={{background: 'var(--neon-cyan)', color: '#020617', fontSize: '10px', padding: '4px 8px', borderRadius: '4px', fontWeight: '800'}}>REESTABLISH FEED</span>}
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-           <div style={{ background: 'rgba(34, 211, 238, 0.05)', border: '1px solid rgba(34, 211, 238, 0.2)', padding: '16px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-              <SpeedometerGauge riskPercentage={activePercentage} />
-              <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--neon-cyan)', marginTop: '8px' }}>LIVE RISK INDEX</div>
-           </div>
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '12px', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700' }}>TRAFFIC FLOW</div>
-                  <div style={{ fontSize: '13px', fontWeight: '800', color: 'white' }}>{selectedSpot.trafficStatus}</div>
-              </div>
-              <div style={{ background: 'rgba(248, 113, 113, 0.05)', border: '1px solid rgba(248, 113, 113, 0.2)', padding: '12px', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700' }}>RESTRICTION</div>
-                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#f87171' }}>{selectedSpot.restriction}</div>
-              </div>
-           </div>
-        </div>
-        
-        {/* Real Live API Data Feedback Box */}
-        {liveContextData && (
-           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
-              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                 <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: '700' }}>WEATHER</div>
-                 <div style={{ fontSize: '12px', color: 'var(--neon-cyan)', fontWeight: '800' }}>{liveContextData.weatherType} {liveContextData.temperature}°C</div>
-              </div>
-              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                 <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: '700' }}>TOPOLOGY</div>
-                 <div style={{ fontSize: '12px', color: 'var(--neon-cyan)', fontWeight: '800' }}>{liveContextData.roadType}</div>
-              </div>
-              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                 <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: '700' }}>PEAK HOUR</div>
-                 <div style={{ fontSize: '12px', color: liveContextData.isPeakHour ? '#f87171' : 'var(--neon-emerald)', fontWeight: '800' }}>{liveContextData.isPeakHour ? 'ACTIVE' : 'NO'}</div>
-              </div>
-           </div>
         )}
 
-        <div style={{ background: 'rgba(34, 211, 238, 0.05)', padding: '16px', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--neon-cyan)' }}>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: 'white', marginBottom: '4px' }}>ANALYTIC INSIGHT</div>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Detected risk factor: <strong style={{color: 'var(--neon-cyan)'}}>{selectedSpot.risk}</strong> based on live Pune telemetry.</p>
+        {/* Mode Toggle Overlay */}
+        <div style={{
+          position: 'absolute', top: '24px', right: '24px', zIndex: 1000,
+          background: 'white', padding: '6px', borderRadius: '100px', boxShadow: 'var(--shadow-lg)',
+          display: 'flex', gap: '4px'
+        }}>
+          <button
+            onClick={() => setIsSatellite(false)}
+            style={{
+              background: !isSatellite ? 'var(--primary-color)' : 'transparent',
+              color: !isSatellite ? 'white' : 'var(--text-muted)',
+              border: 'none', padding: '8px 16px', borderRadius: '100px', cursor: 'pointer',
+              fontSize: '12px', fontWeight: '700', transition: 'var(--transition)'
+            }}
+          >MAP</button>
+          <button
+            onClick={() => setIsSatellite(true)}
+            style={{
+              background: isSatellite ? 'var(--primary-color)' : 'transparent',
+              color: isSatellite ? 'white' : 'var(--text-muted)',
+              border: 'none', padding: '8px 16px', borderRadius: '100px', cursor: 'pointer',
+              fontSize: '12px', fontWeight: '700', transition: 'var(--transition)'
+            }}
+          >SATELLITE</button>
         </div>
 
-        <button onClick={handleReset} style={{ width: '100%', marginTop: '16px', padding: '12px', background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', color: 'white', fontWeight: '700', cursor: 'pointer', transition: 'var(--transition)' }} className="search-item-hover">
-           DISMISS SATELLITE FEED
-        </button>
+        {/* Map Rendering Container */}
+        <div
+          ref={mapContainerRef}
+          style={{ height: '100%', width: '100%', zIndex: 0 }}
+        />
       </div>
-    )}
-  </>
+
+      {/* Advanced Professional Overlay for Data BELOW MAP */}
+      {selectedSpot && (
+        <div className="fade-in" style={{
+          marginTop: '24px',
+          background: 'var(--glass-panel)', backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)',
+          border: '1px solid var(--neon-cyan)', borderRadius: 'var(--radius-xl)',
+          width: '100%', padding: '24px', color: 'white',
+          boxShadow: 'var(--shadow-neon-lg)'
+        }}>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+            <div>
+              <div style={{ fontSize: '11px', color: 'var(--neon-cyan)', fontWeight: '800', letterSpacing: '2px', marginBottom: '4px' }}>LIVE STATION CONTEXT</div>
+              <h3 style={{ margin: 0, fontSize: '20px', color: 'white' }}>{selectedSpot.name}</h3>
+            </div>
+            {isSearchMode && <span style={{ background: 'var(--neon-cyan)', color: '#020617', fontSize: '10px', padding: '4px 8px', borderRadius: '4px', fontWeight: '800' }}>REESTABLISH FEED</span>}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+            <div style={{ background: 'rgba(34, 211, 238, 0.05)', border: '1px solid rgba(34, 211, 238, 0.2)', padding: '16px', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+              <SpeedometerGauge riskPercentage={activePercentage} />
+              <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--neon-cyan)', marginTop: '8px' }}>LIVE RISK INDEX</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '12px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700' }}>TRAFFIC FLOW</div>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: 'white' }}>{selectedSpot.trafficStatus}</div>
+              </div>
+              <div style={{ background: 'rgba(248, 113, 113, 0.05)', border: '1px solid rgba(248, 113, 113, 0.2)', padding: '12px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700' }}>RESTRICTION</div>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#f87171' }}>{selectedSpot.restriction}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Real Live API Data Feedback Box */}
+          {liveContextData && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: '700' }}>WEATHER</div>
+                <div style={{ fontSize: '12px', color: 'var(--neon-cyan)', fontWeight: '800' }}>{liveContextData.weatherType} {liveContextData.temperature}°C</div>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: '700' }}>TOPOLOGY</div>
+                <div style={{ fontSize: '12px', color: 'var(--neon-cyan)', fontWeight: '800' }}>{liveContextData.roadType}</div>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: '700' }}>PEAK HOUR</div>
+                <div style={{ fontSize: '12px', color: liveContextData.isPeakHour ? '#f87171' : 'var(--neon-emerald)', fontWeight: '800' }}>{liveContextData.isPeakHour ? 'ACTIVE' : 'NO'}</div>
+              </div>
+            </div>
+          )}
+
+          <div style={{ background: 'rgba(34, 211, 238, 0.05)', padding: '16px', borderRadius: 'var(--radius-md)', borderLeft: '4px solid var(--neon-cyan)' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: 'white', marginBottom: '4px' }}>ANALYTIC INSIGHT</div>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Detected risk factor: <strong style={{ color: 'var(--neon-cyan)' }}>{selectedSpot.risk}</strong> based on live Pune telemetry.</p>
+          </div>
+
+          <button onClick={handleReset} style={{ width: '100%', marginTop: '16px', padding: '12px', background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', color: 'white', fontWeight: '700', cursor: 'pointer', transition: 'var(--transition)' }} className="search-item-hover">
+            DISMISS SATELLITE FEED
+          </button>
+        </div>
+      )}
+    </>
   );
 }

@@ -55,12 +55,12 @@ function Counter({ target, suffix = '', duration = 1800 }) {
 
 /* ── live feed ticker ────────────────────────────────────── */
 const FEED_EVENTS = [
-  { time: '09:14 AM', zone: 'Navale Bridge', sev: 'Fatal',   color: '#ef4444' },
-  { time: '09:02 AM', zone: 'Hinjewadi Ph1', sev: 'Major',   color: '#f59e0b' },
-  { time: '08:51 AM', zone: 'Shivajinagar',  sev: 'Minor',   color: '#10b981' },
-  { time: '08:39 AM', zone: 'Swargate Chowk',sev: 'Fatal',   color: '#ef4444' },
-  { time: '08:22 AM', zone: 'Kharadi IT Park',sev: 'Major',  color: '#f59e0b' },
-  { time: '08:10 AM', zone: 'Katraj Bypass', sev: 'Minor',   color: '#10b981' },
+  { time: '09:14 AM', zone: 'Navale Bridge', sev: 'Fatal', color: '#ef4444' },
+  { time: '09:02 AM', zone: 'Hinjewadi Ph1', sev: 'Major', color: '#f59e0b' },
+  { time: '08:51 AM', zone: 'Shivajinagar', sev: 'Minor', color: '#10b981' },
+  { time: '08:39 AM', zone: 'Swargate Chowk', sev: 'Fatal', color: '#ef4444' },
+  { time: '08:22 AM', zone: 'Kharadi IT Park', sev: 'Major', color: '#f59e0b' },
+  { time: '08:10 AM', zone: 'Katraj Bypass', sev: 'Minor', color: '#10b981' },
 ];
 
 const RECOMMENDATIONS = [
@@ -98,7 +98,7 @@ export default function Dashboard() {
     const fetchStats = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-        const { data } = await axios.get('http://localhost:5000/api/analytics', config);
+        const { data } = await axios.get('import.meta.env.VITE_API_URL/api/analytics', config);
         setStats(data);
       } catch (err) { console.error('Analytics fetch error:', err); }
       finally { setLoading(false); }
@@ -123,11 +123,11 @@ export default function Dashboard() {
 
   const KPI = [
     { icon: <TrendingUp size={20} />, label: 'Total Predictions', raw: stats?.total_predictions || 0, suffix: '', sub: 'Live samples via ensemble', color: '#6366f1', bar: 78 },
-    { icon: <AlertTriangle size={20} />, label: 'Fatal Cases',       raw: getSev('Fatal'),               suffix: '', sub: 'Critical severity outcomes', color: '#ef4444', bar: 22 },
-    { icon: <Shield size={20} />,        label: 'Model Accuracy',    raw: 91.8,                           suffix: '%', sub: 'Ensemble RF+XGB+ANN',     color: '#10b981', bar: 92 },
-    { icon: <Activity size={20} />,      label: 'Avg Risk Score',    raw: 64,                             suffix: '/100', sub: 'City-wide live telemetry',color: '#0ea5e9', bar: 64 },
-    { icon: <Zap size={20} />,           label: 'Hotspot Zones',     raw: 12,                             suffix: '', sub: 'Active monitoring zones',  color: '#f59e0b', bar: 55 },
-    { icon: <Brain size={20} />,         label: 'ML Latency',        raw: 187,                            suffix: 'ms', sub: 'Real-time inference speed',color: '#8b5cf6', bar: 88 },
+    { icon: <AlertTriangle size={20} />, label: 'Fatal Cases', raw: getSev('Fatal'), suffix: '', sub: 'Critical severity outcomes', color: '#ef4444', bar: 22 },
+    { icon: <Shield size={20} />, label: 'Model Accuracy', raw: 91.8, suffix: '%', sub: 'Ensemble RF+XGB+ANN', color: '#10b981', bar: 92 },
+    { icon: <Activity size={20} />, label: 'Avg Risk Score', raw: 64, suffix: '/100', sub: 'City-wide live telemetry', color: '#0ea5e9', bar: 64 },
+    { icon: <Zap size={20} />, label: 'Hotspot Zones', raw: 12, suffix: '', sub: 'Active monitoring zones', color: '#f59e0b', bar: 55 },
+    { icon: <Brain size={20} />, label: 'ML Latency', raw: 187, suffix: 'ms', sub: 'Real-time inference speed', color: '#8b5cf6', bar: 88 },
   ];
 
   return (
@@ -232,7 +232,7 @@ export default function Dashboard() {
                       'rgba(99,102,241,0.7)', 'rgba(239,68,68,0.7)', 'rgba(245,158,11,0.7)',
                       'rgba(14,165,233,0.7)', 'rgba(139,92,246,0.7)', 'rgba(16,185,129,0.7)',
                     ],
-                    borderColor: ['#6366f1','#ef4444','#f59e0b','#0ea5e9','#8b5cf6','#10b981'],
+                    borderColor: ['#6366f1', '#ef4444', '#f59e0b', '#0ea5e9', '#8b5cf6', '#10b981'],
                     borderWidth: 2, borderRadius: 8,
                   }]
                 }}
@@ -278,14 +278,14 @@ export default function Dashboard() {
           </div>
           <div className="db2-heatmap-grid">
             {[
-              { name: 'Navale Bridge',   score: 94, color: '#ef4444' },
-              { name: 'Hinjewadi Ph1',   score: 87, color: '#ef4444' },
+              { name: 'Navale Bridge', score: 94, color: '#ef4444' },
+              { name: 'Hinjewadi Ph1', score: 87, color: '#ef4444' },
               { name: 'Swargate Chowk', score: 81, color: '#f59e0b' },
-              { name: 'Viman Nagar',     score: 73, color: '#f59e0b' },
-              { name: 'Kothrud Depot',   score: 58, color: '#f59e0b' },
-              { name: 'Koregaon Park',   score: 34, color: '#10b981' },
-              { name: 'Baner',           score: 28, color: '#10b981' },
-              { name: 'Magarpatta',      score: 41, color: '#f59e0b' },
+              { name: 'Viman Nagar', score: 73, color: '#f59e0b' },
+              { name: 'Kothrud Depot', score: 58, color: '#f59e0b' },
+              { name: 'Koregaon Park', score: 34, color: '#10b981' },
+              { name: 'Baner', score: 28, color: '#10b981' },
+              { name: 'Magarpatta', score: 41, color: '#f59e0b' },
             ].map((z, i) => (
               <motion.div
                 key={i}

@@ -20,7 +20,7 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/register', { name, email, password });
+      const { data } = await axios.post('import.meta.env.VITE_API_URL/api/auth/register', { name, email, password });
       login(data);
       navigate('/dashboard');
     } catch (err) {

@@ -19,7 +19,7 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const { data } = await axios.post('import.meta.env.VITE_API_URL/api/auth/login', { email, password });
       login(data);
       navigate('/dashboard');
     } catch (err) {

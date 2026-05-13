@@ -67,7 +67,7 @@ export default function LiveMap() {
       if (!areaToScan) return;
       try {
         const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-        const { data } = await axios.post('http://localhost:5000/api/predict/live', {
+        const { data } = await axios.post('import.meta.env.VITE_API_URL/api/predict/live', {
           lat: areaToScan.coords[0], lng: areaToScan.coords[1], name: areaToScan.name
         }, config);
         if (data?.success && isActive) {
@@ -76,7 +76,7 @@ export default function LiveMap() {
           let traff = mData.trafficStatus.includes('Standstill') || mData.trafficStatus.includes('Congestion')
             ? 85 + Math.floor(Math.random() * 15)
             : mData.trafficStatus.includes('Moderate') ? 40 + Math.floor(Math.random() * 20)
-            : 10 + Math.floor(Math.random() * 15);
+              : 10 + Math.floor(Math.random() * 15);
           setRiskList(prev => {
             const updated = [...prev];
             const idx = updated.findIndex(a => a.id === areaToScan.id);
@@ -117,14 +117,14 @@ export default function LiveMap() {
           const name = data[0].display_name.split(',')[0];
           try {
             const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-            const { data: mlData } = await axios.post('http://localhost:5000/api/predict/live', { lat, lng, name }, config);
+            const { data: mlData } = await axios.post('import.meta.env.VITE_API_URL/api/predict/live', { lat, lng, name }, config);
             foundArea = { id: Date.now(), name, coords: [lat, lng], liveScore: mlData?.mapData?.riskPercentage || 50, isLoaded: true };
             const fb = foundArea.liveScore;
             foundArea.baseRisk = fb >= 75 ? 'High' : fb >= 40 ? 'Medium' : 'Low';
             const tStatus = mlData?.mapData?.trafficStatus || 'Moderate';
             foundArea.traffic = tStatus.includes('Congestion') ? 85 + Math.floor(Math.random() * 15)
               : tStatus.includes('Moderate') ? 40 + Math.floor(Math.random() * 20)
-              : 10 + Math.floor(Math.random() * 15);
+                : 10 + Math.floor(Math.random() * 15);
             setRiskList(prev => [foundArea, ...prev].sort((a, b) => b.liveScore - a.liveScore));
           } catch { alert(`Backend analysis failed for "${name}".`); return; }
         } else { alert(`Could not locate "${searchQuery}" in Pune area.`); return; }
