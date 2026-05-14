@@ -554,7 +554,7 @@ NODE_ENV=development
 ```bash
 docker-compose up --build
 # React: http://localhost:5173
-# Express: http://localhost:5000
+# Express: import.meta.env.VITE_API_URL
 # FastAPI: http://localhost:5001
 # MongoDB: localhost:27017
 ```

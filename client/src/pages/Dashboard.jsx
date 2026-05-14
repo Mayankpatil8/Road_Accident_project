@@ -94,17 +94,33 @@ export default function Dashboard() {
   const [tick, setTick] = useState(0);
   const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-        const { data } = await axios.get('import.meta.env.VITE_API_URL/api/analytics', config);
-        setStats(data);
-      } catch (err) { console.error('Analytics fetch error:', err); }
-      finally { setLoading(false); }
-    };
-    fetchStats();
-  }, [user]);
+useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user?.token}`
+        }
+      };
+
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/analytics`,
+        config
+      );
+
+      setStats(data);
+
+    } catch (err) {
+      console.error('Analytics fetch error:', err);
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStats();
+
+}, [user]);
 
   // Ticker animation
   useEffect(() => {

@@ -227,11 +227,14 @@ export default function RiskMap() {
         clearInterval(interval);
 
         try {
-          const res = await axios.post('import.meta.env.VITE_API_URL/api/predict/live', {
-            lat: lat,
-            lng: lon,
-            name: result.display_name.split(',')[0]
-          });
+  const res = await axios.post(
+    `${import.meta.env.VITE_API_URL}/api/predict/live`,
+    {
+      lat: lat,
+      lng: lon,
+      name: result.display_name.split(',')[0]
+    }
+  );
 
           if (res.data.success) {
             const data = res.data;

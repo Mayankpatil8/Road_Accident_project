@@ -67,8 +67,9 @@ export default function LiveMap() {
       if (!areaToScan) return;
       try {
         const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-        const { data } = await axios.post('import.meta.env.VITE_API_URL/api/predict/live', {
-          lat: areaToScan.coords[0], lng: areaToScan.coords[1], name: areaToScan.name
+const { data } = await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/predict/live`,
+  {          lat: areaToScan.coords[0], lng: areaToScan.coords[1], name: areaToScan.name
         }, config);
         if (data?.success && isActive) {
           const mData = data.mapData;
@@ -117,8 +118,11 @@ export default function LiveMap() {
           const name = data[0].display_name.split(',')[0];
           try {
             const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-            const { data: mlData } = await axios.post('import.meta.env.VITE_API_URL/api/predict/live', { lat, lng, name }, config);
-            foundArea = { id: Date.now(), name, coords: [lat, lng], liveScore: mlData?.mapData?.riskPercentage || 50, isLoaded: true };
+const { data: mlData } = await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/predict/live`,
+  { lat, lng, name },
+  config
+);            foundArea = { id: Date.now(), name, coords: [lat, lng], liveScore: mlData?.mapData?.riskPercentage || 50, isLoaded: true };
             const fb = foundArea.liveScore;
             foundArea.baseRisk = fb >= 75 ? 'High' : fb >= 40 ? 'Medium' : 'Low';
             const tStatus = mlData?.mapData?.trafficStatus || 'Moderate';

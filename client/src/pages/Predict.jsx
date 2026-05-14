@@ -66,8 +66,11 @@ export default function Predict() {
   const submitPrediction = async (payload) => {
     const config = buildAuthConfig();
     const safePayload = sanitizePredictionPayload(payload);
-    const { data } = await axios.post('import.meta.env.VITE_API_URL/api/predict', safePayload, config);
-    setResult(data.prediction);
+const { data } = await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/predict`,
+  safePayload,
+  config
+);    setResult(data.prediction);
     if (window.innerWidth < 768) {
       const el = document.querySelector('.result-section');
       if (el) window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
@@ -91,8 +94,15 @@ export default function Predict() {
         }
       } catch { /* keep fallback */ }
       if (!resolved) { setError(`Could not locate "${searchLocation}". Try Katraj or Kharadi.`); return; }
-      const scanRes = await axios.post('import.meta.env.VITE_API_URL/api/predict/live', { lat: resolved.lat, lng: resolved.lng, name: resolved.name }, config);
-      if (scanRes.data?.liveContext) {
+const scanRes = await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/predict/live`,
+  {
+    lat: resolved.lat,
+    lng: resolved.lng,
+    name: resolved.name
+  },
+  config
+);      if (scanRes.data?.liveContext) {
         const lc = scanRes.data.liveContext;
         const nextForm = { ...form, temperature: lc.temperature || form.temperature, humidity: lc.humidity || form.humidity, weather: lc.weatherType === 'Rain' ? 2 : lc.weatherType === 'Fog/Snow' ? 3 : 1, road_type: lc.roadType === 'Highway' ? 1 : lc.roadType === 'Urban' ? 2 : 3, is_peak_hour: lc.isPeakHour ? 1 : 0 };
         setForm(nextForm);
