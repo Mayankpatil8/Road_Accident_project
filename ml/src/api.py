@@ -300,10 +300,6 @@ def live_scan(req: LiveScanRequest):
             status_code=503,
             detail="Models not loaded."
         )
-
-    now = datetime.now()
-            raise HTTPException(status_code=503, detail="Models not loaded.")
-
     now = datetime.now()
     hour = now.hour
     day_of_week = now.isoweekday()
